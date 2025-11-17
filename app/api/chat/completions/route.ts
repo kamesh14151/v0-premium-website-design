@@ -1,7 +1,15 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { nexariqClient } from '@/lib/llm/nexariq-client';
-import { neon } from '@neondatabase/serverless';
+
+/**
+ * AJStudioz AI Chat Completions API
+ * Connects to multi-cloud AI platform with 13 models from 4 providers
+ */
+
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
 
 export async function POST(request: Request) {
   try {
@@ -24,11 +32,25 @@ export async function POST(request: Request) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    // Parse request body
-    const { prompt, model, temperature, max_tokens, stream } = await request.json();
+    // Parse request body - support both prompt and messages format
+    const body = await request.json();
+    const { 
+      prompt, 
+      messages, 
+      model = 'kimi', 
+      temperature = 0.7, 
+      max_tokens = 2000, 
+      stream = false 
+    } = body;
 
-    if (!prompt) {
-      return new Response(JSON.stringify({ error: 'Prompt is required' }), {
+    // Convert prompt to messages format if needed
+    let chatMessages: ChatMessage[] = messages;
+    if (prompt && !messages) {
+      chatMessages = [{ role: 'user' as const, content: prompt }];
+    }
+
+    if (!chatMessages || chatMessages.length === 0) {
+      return new Response(JSON.stringify({ error: 'Messages or prompt is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -36,43 +58,38 @@ export async function POST(request: Request) {
 
     const startTime = Date.now();
 
-    // For streaming responses
-    if (stream) {
-      const encoder = new TextEncoder();
-      const readable = new ReadableStream({
-        async start(controller) {
-          try {
-            let fullResponse = '';
-            await nexariqClient.stream(
-              { prompt, model, temperature, max_tokens },
-              (chunk) => {
-                fullResponse += chunk;
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ content: chunk })}\n\n`)
-                );
-              }
-            );
+    // Get API credentials
+    const apiKey = process.env.AJSTUDIOZ_API_KEY || 'aj-demo123456789abcdef';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ajstudioz.dev';
 
-            const responseTime = Date.now() - startTime;
-            const tokens = await nexariqClient.countTokens(prompt + fullResponse, model);
+    // Call AJStudioz AI API
+    const response = await fetch(`${apiUrl}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+      },
+      body: JSON.stringify({
+        model,
+        messages: chatMessages,
+        temperature,
+        max_tokens,
+        stream,
+        user_id: user.id,
+      }),
+    });
 
-            // Log request
-            const sql = neon(process.env.DATABASE_URL!);
-            await sql`
-              INSERT INTO request_history (user_id, model, prompt, response, tokens_input, tokens_total, response_time_ms, is_streaming)
-              VALUES (${user.id}, ${model}, ${prompt}, ${fullResponse}, ${await nexariqClient.countTokens(prompt, model)}, ${tokens}, ${responseTime}, true)
-            `;
-
-            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-            controller.close();
-          } catch (error) {
-            console.error('[v0] Stream error:', error);
-            controller.error(error);
-          }
-        },
+    if (!response.ok) {
+      const error = await response.text();
+      return new Response(JSON.stringify({ error: `API Error: ${error}` }), {
+        status: response.status,
+        headers: { 'Content-Type': 'application/json' },
       });
+    }
 
-      return new Response(readable, {
+    // Handle streaming response
+    if (stream) {
+      return new Response(response.body, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
@@ -81,40 +98,86 @@ export async function POST(request: Request) {
       });
     }
 
-    // Non-streaming response
-    const response = await nexariqClient.complete({
-      prompt,
-      model,
-      temperature: temperature || 0.7,
-      max_tokens: max_tokens || 1000,
-    });
-
+    // Handle regular response
+    const data = await response.json();
     const responseTime = Date.now() - startTime;
 
-    // Log request to database
-    const sql = neon(process.env.DATABASE_URL!);
-    await sql`
-      INSERT INTO request_history (user_id, model, prompt, response, tokens_input, tokens_output, tokens_total, response_time_ms)
-      VALUES (
-        ${user.id},
-        ${model},
-        ${prompt},
-        ${response.choices[0].text},
-        ${response.usage.prompt_tokens},
-        ${response.usage.completion_tokens},
-        ${response.usage.total_tokens},
-        ${responseTime}
-      )
-    `;
+    // Extract content from structured response
+    const messageContent = data.output?.[data.output.length - 1]?.content?.[0]?.text || '';
+    const reasoningContent = data.output?.find((o: any) => o.type === 'reasoning')?.content?.[0]?.text || '';
 
-    return new Response(JSON.stringify(response), {
+    // Log request to database
+    try {
+      await supabase.from('request_history').insert({
+        user_id: user.id,
+        model: model,
+        provider: data.metadata?.model_provider || 'unknown',
+        prompt_tokens: data.usage?.input_tokens || 0,
+        completion_tokens: data.usage?.output_tokens || 0,
+        total_tokens: data.usage?.total_tokens || 0,
+        cost: 0, // Free models
+        response_time: responseTime,
+        status: 'success',
+        has_reasoning: !!reasoningContent,
+      });
+    } catch (logError) {
+      console.error('Failed to log request:', logError);
+      // Don't fail the request if logging fails
+    }
+
+    // Return OpenAI-compatible format
+    return new Response(JSON.stringify({
+      id: data.id,
+      object: 'chat.completion',
+      created: data.created_at,
+      model: model,
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: 'assistant',
+            content: messageContent,
+          },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: {
+        prompt_tokens: data.usage?.input_tokens || 0,
+        completion_tokens: data.usage?.output_tokens || 0,
+        total_tokens: data.usage?.total_tokens || 0,
+      },
+      metadata: {
+        provider: data.metadata?.model_provider,
+        response_time_ms: responseTime,
+        has_reasoning: !!reasoningContent,
+        reasoning_content: reasoningContent,
+      },
+    }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('[v0] API error:', error);
+    console.error('[AJStudioz] API error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
+}
+
+// GET endpoint for API info
+export async function GET() {
+  return new Response(JSON.stringify({
+    service: 'AJStudioz AI Chat API',
+    models: 13,
+    providers: {
+      groq: 5,
+      chutes: 1,
+      cerebras: 1,
+      openrouter: 4,
+      ollama: 2,
+    },
+    features: ['chat', 'streaming', 'reasoning', 'multi-provider', 'rate-limit-protection'],
+  }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
