@@ -46,9 +46,10 @@ export async function POST(request: Request) {
     `;
 
     // Create notification
+    const teamName = await sql`SELECT name FROM teams WHERE id = ${team_id}`;
     await sql`
       INSERT INTO notifications (user_id, type, message)
-      SELECT auth.uid(), 'team_invite', ${'You have been invited to ' || (SELECT name FROM teams WHERE id = ${team_id})}
+      SELECT auth.uid(), 'team_invite', ${'You have been invited to ' + teamName.rows[0]?.name}
       FROM auth.users WHERE email = ${email}
     `;
 
