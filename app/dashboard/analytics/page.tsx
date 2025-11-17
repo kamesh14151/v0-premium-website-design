@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import {
   BarChart,
   Bar,
@@ -72,16 +73,85 @@ export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("7d");
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [requestsData, setRequestsData] = useState<any[]>([]);
+  const [tokensData, setTokensData] = useState<any[]>([]);
+  const [modelUsageData, setModelUsageData] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch('/api/analytics/summary');
-        if (response.ok) {
-          const data = await response.json();
-          setAnalyticsData(data);
-          console.log("[v0] Analytics data loaded:", data);
-        }
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Fetch requests data
+        const { data: requests, error: reqError } = await supabase
+          .from('request_history')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true })
+          .limit(100);
+
+        if (reqError) throw reqError;
+
+        // Process data for charts
+        const last7Days = [...Array(7)].map((_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - (6 - i));
+          return date.toISOString().split('T')[0];
+        });
+
+        const requestsByDate = last7Days.map(date => {
+          const dayRequests = (requests || []).filter((r: any) => r.created_at.startsWith(date));
+          return {
+            date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            requests: dayRequests.length,
+            errors: dayRequests.filter((r: any) => r.status_code !== 200).length,
+          };
+        });
+
+        const tokensByDate = last7Days.map(date => {
+          const dayRequests = (requests || []).filter((r: any) => r.created_at.startsWith(date));
+          const totalInput = dayRequests.reduce((sum: number, r: any) => sum + (r.prompt_tokens || 0), 0);
+          const totalOutput = dayRequests.reduce((sum: number, r: any) => sum + (r.completion_tokens || 0), 0);
+          return {
+            date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            input: totalInput,
+            output: totalOutput,
+          };
+        });
+
+        // Model usage distribution
+        const modelCounts: any = {};
+        (requests || []).forEach((r: any) => {
+          const model = r.model || 'Unknown';
+          modelCounts[model] = (modelCounts[model] || 0) + 1;
+        });
+
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const modelData = Object.entries(modelCounts).map(([name, value], idx) => ({
+          name,
+          value: value as number,
+          fill: colors[idx % colors.length],
+        }));
+
+        setRequestsData(requestsByDate);
+        setTokensData(tokensByDate);
+        setModelUsageData(modelData);
+
+        // Calculate summary stats
+        const totalRequests = requests?.length || 0;
+        const totalTokens = (requests || []).reduce((sum: number, r: any) => sum + (r.total_tokens || 0), 0);
+        const successfulRequests = (requests || []).filter((r: any) => r.status_code === 200).length;
+        const successRate = totalRequests > 0 ? Math.round((successfulRequests / totalRequests) * 100) : 0;
+        const totalCost = (requests || []).reduce((sum: number, r: any) => sum + (r.cost || 0), 0);
+
+        setAnalyticsData({
+          total_requests: totalRequests,
+          total_tokens: totalTokens,
+          success_rate: successRate,
+          total_cost: totalCost,
+        });
       } catch (error) {
         console.error('[v0] Failed to load analytics:', error);
       } finally {
@@ -90,7 +160,7 @@ export default function AnalyticsPage() {
     };
 
     fetchAnalytics();
-  }, []);
+  }, [timeRange]);
 
   const stats = [
     { label: "Total Requests", value: analyticsData?.total_requests?.toString() || "0", change: "+12%", icon: "📊" },
