@@ -29,6 +29,8 @@ interface ModelSpec {
   maxTokens: number;
   trainingData: string;
   description: string;
+  provider: string;
+  providerLogo: string;
 }
 
 const models: ModelSpec[] = [
@@ -44,6 +46,8 @@ const models: ModelSpec[] = [
     trainingData: "Moonshot AI",
     description: "Advanced conversational AI with large context window",
     capabilities: ["Large context", "Multi-turn chat", "Reasoning", "Chinese/English"],
+    provider: "Groq Cloud",
+    providerLogo: "/logos/groq.svg",
   },
   {
     id: "qwen3",
@@ -56,6 +60,8 @@ const models: ModelSpec[] = [
     trainingData: "Alibaba Cloud",
     description: "Powerful reasoning model from Alibaba",
     capabilities: ["Advanced reasoning", "Long context", "Multilingual", "Math & Logic"],
+    provider: "Groq Cloud",
+    providerLogo: "/logos/groq.svg",
   },
   {
     id: "llama-4",
@@ -68,6 +74,8 @@ const models: ModelSpec[] = [
     trainingData: "Meta",
     description: "Meta's latest Llama model with enhanced capabilities",
     capabilities: ["Code generation", "Reasoning", "Instruction following", "Efficiency"],
+    provider: "Groq Cloud",
+    providerLogo: "/logos/groq.svg",
   },
   {
     id: "gpt-oss",
@@ -80,6 +88,8 @@ const models: ModelSpec[] = [
     trainingData: "OpenAI Compatible",
     description: "Open-source GPT-style model with high token output",
     capabilities: ["Long output", "General purpose", "Chat", "Text generation"],
+    provider: "Groq Cloud",
+    providerLogo: "/logos/groq.svg",
   },
   {
     id: "gpt-oss-120b",
@@ -92,6 +102,8 @@ const models: ModelSpec[] = [
     trainingData: "OpenAI Compatible",
     description: "Large-scale open-source GPT model for advanced tasks",
     capabilities: ["Advanced reasoning", "Long output", "Complex tasks", "High quality"],
+    provider: "Groq Cloud",
+    providerLogo: "/logos/groq.svg",
   },
   
   // Chutes AI Models (1 model)
@@ -106,6 +118,8 @@ const models: ModelSpec[] = [
     trainingData: "Zhipu AI",
     description: "Lightweight GLM model for efficient inference",
     capabilities: ["Fast inference", "Chat", "Multilingual", "Efficient"],
+    provider: "Chutes AI",
+    providerLogo: "/logos/chutes.svg",
   },
   
   // Cerebras AI Models (1 model)
@@ -120,6 +134,8 @@ const models: ModelSpec[] = [
     trainingData: "Zhipu AI",
     description: "Advanced reasoning model with chain-of-thought capabilities",
     capabilities: ["Chain-of-thought", "Advanced reasoning", "Long output", "Streaming"],
+    provider: "Cerebras AI",
+    providerLogo: "/logos/cerebras.svg",
   },
   
   // OpenRouter Models (4 models)
@@ -134,6 +150,8 @@ const models: ModelSpec[] = [
     trainingData: "DeepSeek",
     description: "Reasoning-focused model with thinking process extraction",
     capabilities: ["Chain-of-thought", "Reasoning", "Problem solving", "Explainability"],
+    provider: "OpenRouter",
+    providerLogo: "/logos/openrouter.svg",
   },
   {
     id: "qwen3-coder",
@@ -146,6 +164,8 @@ const models: ModelSpec[] = [
     trainingData: "Alibaba Cloud",
     description: "Specialized coding model for software development",
     capabilities: ["Code generation", "Code completion", "Debugging", "Multi-language"],
+    provider: "OpenRouter",
+    providerLogo: "/logos/openrouter.svg",
   },
   {
     id: "mistral-small-24b",
@@ -158,6 +178,8 @@ const models: ModelSpec[] = [
     trainingData: "Mistral AI",
     description: "Efficient Mistral model for general tasks",
     capabilities: ["Chat", "Reasoning", "Instruction following", "Efficient"],
+    provider: "OpenRouter",
+    providerLogo: "/logos/openrouter.svg",
   },
   {
     id: "mistral-small-3.1-24b",
@@ -170,6 +192,8 @@ const models: ModelSpec[] = [
     trainingData: "Mistral AI",
     description: "Latest Mistral model with improved performance",
     capabilities: ["Enhanced reasoning", "Chat", "General purpose", "Fast"],
+    provider: "OpenRouter",
+    providerLogo: "/logos/openrouter.svg",
   },
   
   // Local Ollama Models (2 models)
@@ -184,6 +208,8 @@ const models: ModelSpec[] = [
     trainingData: "Alibaba Cloud",
     description: "Local privacy-focused model (requires Ollama)",
     capabilities: ["Privacy", "Local inference", "Fast", "No internet required"],
+    provider: "Ollama Local",
+    providerLogo: "/logos/ollama.svg",
   },
   {
     id: "glm-4.6",
@@ -195,7 +221,9 @@ const models: ModelSpec[] = [
     maxTokens: 8192,
     trainingData: "Zhipu AI",
     description: "Local reasoning model with chain-of-thought (requires Ollama)",
-    capabilities: ["Privacy", "Chain-of-thought", "Reasoning", "Streaming"],
+    capabilities: ["Chain-of-thought", "Privacy", "Local inference", "Reasoning"],
+    provider: "Ollama Local",
+    providerLogo: "/logos/ollama.svg",
   },
 ];
 
@@ -263,7 +291,15 @@ export default function ModelsPage() {
                       : "border-border hover:bg-muted"
                   }`}
                 >
-                  <h3 className="font-semibold mb-1">{model.name}</h3>
+                  <div className="flex items-start gap-2 mb-2">
+                    <img 
+                      src={model.providerLogo} 
+                      alt={model.provider} 
+                      className="w-6 h-6 rounded flex-shrink-0"
+                      title={model.provider}
+                    />
+                    <h3 className="font-semibold">{model.name}</h3>
+                  </div>
                   <p className="text-sm opacity-80">{model.description}</p>
                 </button>
               ))}
@@ -284,7 +320,15 @@ export default function ModelsPage() {
                       key={model.id}
                       className="text-left px-4 py-3 font-semibold"
                     >
-                      {model.name}
+                      <div className="flex items-center gap-2">
+                        <img 
+                          src={model.providerLogo} 
+                          alt={model.provider} 
+                          className="w-5 h-5 rounded"
+                          title={model.provider}
+                        />
+                        {model.name}
+                      </div>
                     </th>
                   ))}
                 </tr>

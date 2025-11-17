@@ -42,8 +42,9 @@ export function CreateKeyDialog({
 
       if (!user) throw new Error("Not authenticated");
 
-      // Generate a random API key
-      const randomKey = crypto.randomBytes(32).toString("hex");
+      // Generate a random API key with nxq_ prefix
+      const randomBytes = crypto.randomBytes(32).toString("hex");
+      const randomKey = `nxq_${randomBytes}`;
       const keyHash = crypto
         .createHash("sha256")
         .update(randomKey)
@@ -61,11 +62,7 @@ export function CreateKeyDialog({
 
       setCreatedKey(randomKey);
       setKeyName("");
-      setTimeout(() => {
-        onKeyCreated();
-        setCreatedKey(null);
-        onOpenChange(false);
-      }, 2000);
+      onKeyCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error creating key");
     } finally {
@@ -89,12 +86,31 @@ export function CreateKeyDialog({
               <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
                 Key Created Successfully!
               </p>
-              <div className="bg-background rounded p-3 font-mono text-xs break-all">
+              <div className="bg-background rounded p-3 font-mono text-xs break-all select-all">
                 {createdKey}
               </div>
               <p className="text-xs text-green-700 dark:text-green-300 mt-2">
-                Make sure to save this key. You won&apos;t be able to see it again.
+                ⚠️ Make sure to save this key. You won&apos;t be able to see it again.
               </p>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(createdKey);
+                  alert('API Key copied to clipboard!');
+                }}
+                variant="outline"
+              >
+                Copy Key
+              </Button>
+              <Button
+                onClick={() => {
+                  setCreatedKey(null);
+                  onOpenChange(false);
+                }}
+              >
+                Done
+              </Button>
             </div>
           </div>
         ) : (

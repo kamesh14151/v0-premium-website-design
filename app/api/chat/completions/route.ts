@@ -58,11 +58,11 @@ export async function POST(request: Request) {
 
     const startTime = Date.now();
 
-    // Get API credentials
+    // Get API credentials  
     const apiKey = process.env.AJSTUDIOZ_API_KEY || 'aj-demo123456789abcdef';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.ajstudioz.dev';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://aj-fresh.vercel.app';
 
-    // Call AJStudioz AI API
+    // Call AJStudioz AI API (aj-fresh backend)
     const response = await fetch(`${apiUrl}/api/chat`, {
       method: 'POST',
       headers: {
