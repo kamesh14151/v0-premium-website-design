@@ -70,22 +70,22 @@ export default function ApiKeysPage() {
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Active Keys</p>
-            <p className="text-3xl font-bold">3</p>
-            <p className="text-xs text-green-400 mt-2">1 key near rotation</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : keys.filter(k => k.status === 'active').length}</p>
+            <p className="text-xs text-green-400 mt-2">{keys.filter(k => k.status === 'active').length} operational</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Total Keys</p>
-            <p className="text-3xl font-bold">5</p>
-            <p className="text-xs text-amber-400 mt-2">2 keys inactive</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : keys.length}</p>
+            <p className="text-xs text-muted-foreground mt-2">{keys.filter(k => k.status === 'revoked').length} revoked</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Last Rotation</p>
-            <p className="text-lg font-bold">45 days ago</p>
-            <p className="text-xs text-amber-400 mt-2">Rotate soon</p>
+            <p className="text-xs text-muted-foreground mb-1 uppercase">Last Created</p>
+            <p className="text-lg font-bold">{isLoading ? '...' : keys.length > 0 ? new Date(keys[0].created_at).toLocaleDateString() : 'None'}</p>
+            <p className="text-xs text-muted-foreground mt-2">Most recent key</p>
           </CardContent>
         </Card>
       </div>

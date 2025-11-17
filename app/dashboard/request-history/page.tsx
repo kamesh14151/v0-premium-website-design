@@ -1,36 +1,115 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Download, Filter, Clock, TrendingUp, Copy, Eye, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const mockRequests = [
-  { id: 1, model: "GPT-4", tokens: 1240, status: 200, time: "2.3s", cost: "$0.05", timestamp: "2 hours ago", endpoint: "/v1/chat/completions", method: "POST", latency: 2340 },
-  { id: 2, model: "Claude-3", tokens: 856, status: 200, time: "1.8s", cost: "$0.03", timestamp: "3 hours ago", endpoint: "/v1/messages", method: "POST", latency: 1850 },
-  { id: 3, model: "GPT-3.5", tokens: 512, status: 200, time: "0.9s", cost: "$0.01", timestamp: "5 hours ago", endpoint: "/v1/chat/completions", method: "POST", latency: 920 },
-  { id: 4, model: "GPT-4", tokens: 2048, status: 429, time: "N/A", cost: "$0.00", timestamp: "6 hours ago", endpoint: "/v1/chat/completions", method: "POST", latency: 0 },
-  { id: 5, model: "Claude-3", tokens: 1024, status: 200, time: "2.1s", cost: "$0.04", timestamp: "8 hours ago", endpoint: "/v1/messages", method: "POST", latency: 2120 },
-];
-
-const latencyData = [
-  { time: '00:00', latency: 145, errors: 2 },
-  { time: '04:00', latency: 132, errors: 1 },
-  { time: '08:00', latency: 156, errors: 3 },
-  { time: '12:00', latency: 148, errors: 2 },
-  { time: '16:00', latency: 162, errors: 4 },
-  { time: '20:00', latency: 151, errors: 2 },
-  { time: '24:00', latency: 140, errors: 1 },
-];
+import { createClient } from "@/lib/supabase/client";
 
 export default function RequestHistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalRequests: 0,
+    avgResponse: 0,
+    successRate: 0,
+    errors: 0,
+    totalCost: 0,
+  });
+  const [latencyData, setLatencyData] = useState<any[]>([]);
 
-  const filteredRequests = mockRequests.filter((req) => {
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const loadRequests = async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      // Fetch requests
+      const { data: requestsData, error } = await supabase
+        .from('request_history')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      const formattedRequests = (requestsData || []).map((req: any) => ({
+        id: req.id,
+        model: req.model || 'Unknown',
+        tokens: req.total_tokens || 0,
+        status: req.status_code || 200,
+        time: req.response_time ? `${(req.response_time / 1000).toFixed(2)}s` : 'N/A',
+        cost: `$${(req.cost || 0).toFixed(4)}`,
+        timestamp: getTimeAgo(new Date(req.created_at)),
+        endpoint: '/api/chat/completions',
+        method: 'POST',
+        latency: req.response_time || 0,
+      }));
+
+      setRequests(formattedRequests);
+
+      // Calculate stats
+      const totalRequests = formattedRequests.length;
+      const successfulRequests = formattedRequests.filter((r: any) => r.status === 200).length;
+      const avgResponse = formattedRequests.reduce((sum: number, r: any) => sum + r.latency, 0) / (totalRequests || 1);
+      const totalCost = formattedRequests.reduce((sum: number, r: any) => sum + parseFloat(r.cost.replace('$', '')), 0);
+      const errors = totalRequests - successfulRequests;
+
+      setStats({
+        totalRequests,
+        avgResponse: Math.round(avgResponse) / 1000,
+        successRate: totalRequests > 0 ? Math.round((successfulRequests / totalRequests) * 1000) / 10 : 0,
+        errors,
+        totalCost,
+      });
+
+      // Generate latency chart data
+      const last24Hours = formattedRequests.slice(0, 24);
+      const chartData = [];
+      for (let i = 0; i < 7; i++) {
+        const startIdx = i * 3;
+        const endIdx = startIdx + 3;
+        const slice = last24Hours.slice(startIdx, endIdx);
+        if (slice.length > 0) {
+          chartData.push({
+            time: `${i * 4}:00`,
+            latency: Math.round(slice.reduce((sum: number, r: any) => sum + r.latency, 0) / slice.length),
+            errors: slice.filter((r: any) => r.status !== 200).length,
+          });
+        }
+      }
+      setLatencyData(chartData);
+
+    } catch (error) {
+      console.error('Error loading requests:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getTimeAgo = (date: Date) => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return `${seconds} seconds ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minutes ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hours ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} days ago`;
+  };
+
+  const filteredRequests = requests.filter((req) => {
     const matchesSearch = req.model.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          req.endpoint.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === "all" || req.status.toString() === filterStatus;
@@ -54,7 +133,7 @@ export default function RequestHistoryPage() {
               <CardTitle>Performance Metrics</CardTitle>
               <CardDescription>Latency trends and error rate</CardDescription>
             </div>
-            <Button variant="outline" size="sm" className="border-white/10"><RefreshCw className="w-4 h-4" /></Button>
+            <Button variant="outline" size="sm" className="border-white/10" onClick={loadRequests}><RefreshCw className="w-4 h-4" /></Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -74,36 +153,36 @@ export default function RequestHistoryPage() {
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Total Requests</p>
-            <p className="text-3xl font-bold">12.5K</p>
-            <p className="text-xs text-green-400 mt-2">↑ 23% this week</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : stats.totalRequests >= 1000 ? `${(stats.totalRequests / 1000).toFixed(1)}K` : stats.totalRequests}</p>
+            <p className="text-xs text-green-400 mt-2">Last 100 requests</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Avg Response</p>
-            <p className="text-3xl font-bold">1.8s</p>
-            <p className="text-xs text-green-400 mt-2">↓ 12% faster</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : `${stats.avgResponse.toFixed(1)}s`}</p>
+            <p className="text-xs text-muted-foreground mt-2">Response time</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Success Rate</p>
-            <p className="text-3xl font-bold">99.8%</p>
-            <p className="text-xs text-green-400 mt-2">2 errors</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : `${stats.successRate}%`}</p>
+            <p className="text-xs text-green-400 mt-2">{stats.errors} errors</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Errors</p>
-            <p className="text-3xl font-bold">2</p>
-            <p className="text-xs text-amber-400 mt-2">1 rate limit</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : stats.errors}</p>
+            <p className="text-xs text-amber-400 mt-2">Failed requests</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Total Cost</p>
-            <p className="text-3xl font-bold">$12.45</p>
-            <p className="text-xs text-muted-foreground mt-2">This month</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : `$${stats.totalCost.toFixed(2)}`}</p>
+            <p className="text-xs text-muted-foreground mt-2">All time</p>
           </CardContent>
         </Card>
       </div>
@@ -159,7 +238,19 @@ export default function RequestHistoryPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredRequests.map((req) => (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                      Loading requests...
+                    </td>
+                  </tr>
+                ) : filteredRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                      No requests found. Start making API calls to see them here.
+                    </td>
+                  </tr>
+                ) : filteredRequests.map((req) => (
                   <tr key={req.id} className="border-b border-white/5 hover:bg-white/5 transition cursor-pointer">
                     <td className="py-4 px-4 font-medium">{req.model}</td>
                     <td className="py-4 px-4 text-muted-foreground font-mono text-xs">{req.endpoint}</td>

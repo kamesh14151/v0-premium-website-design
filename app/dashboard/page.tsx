@@ -91,17 +91,74 @@ export default function DashboardPage() {
       
       setEmail(user.email || null);
       
-      setTimeout(() => {
+      // Fetch real stats from database
+      try {
+        // Get API calls count
+        const { count: apiCallsCount } = await supabase
+          .from('request_history')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        // Get active API keys count
+        const { count: activeKeysCount } = await supabase
+          .from('api_keys')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('status', 'active');
+
+        // Get average latency
+        const { data: latencyData } = await supabase
+          .from('request_history')
+          .select('response_time')
+          .eq('user_id', user.id)
+          .not('response_time', 'is', null)
+          .limit(100);
+
+        const avgLatency = latencyData && latencyData.length > 0
+          ? Math.round(latencyData.reduce((sum, r) => sum + (r.response_time || 0), 0) / latencyData.length)
+          : 0;
+
+        // Get total cost this month
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const { data: costData } = await supabase
+          .from('request_history')
+          .select('cost')
+          .eq('user_id', user.id)
+          .gte('created_at', startOfMonth.toISOString());
+
+        const costThisMonth = costData && costData.length > 0
+          ? costData.reduce((sum, r) => sum + (r.cost || 0), 0)
+          : 0;
+
+        // Calculate quota used (assuming 100k requests per month limit)
+        const quotaLimit = 100000;
+        const quotaUsed = apiCallsCount ? Math.round((apiCallsCount / quotaLimit) * 100) : 0;
+
         setStats({
-          apiCalls: 125430,
-          activeKeys: 5,
-          quotaUsed: 72,
-          avgLatency: 127,
+          apiCalls: apiCallsCount || 0,
+          activeKeys: activeKeysCount || 0,
+          quotaUsed: Math.min(quotaUsed, 100),
+          avgLatency: avgLatency,
           uptime: 99.98,
-          costThisMonth: 247.50,
+          costThisMonth: costThisMonth,
         });
-        setIsLoading(false);
-      }, 500);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        // Set default values on error
+        setStats({
+          apiCalls: 0,
+          activeKeys: 0,
+          quotaUsed: 0,
+          avgLatency: 0,
+          uptime: 99.98,
+          costThisMonth: 0,
+        });
+      }
+      
+      setIsLoading(false);
     }
 
     getUser();
@@ -136,10 +193,10 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               title="Total API Calls"
-              value="125.4K"
+              value={stats.apiCalls >= 1000 ? `${(stats.apiCalls / 1000).toFixed(1)}K` : stats.apiCalls.toString()}
               description="Requests this month"
               icon={Activity}
-              trend="↑ 23% vs last month"
+              trend={stats.apiCalls > 0 ? `${stats.apiCalls} total requests` : "No requests yet"}
             />
             <StatCard
               title="Active API Keys"
