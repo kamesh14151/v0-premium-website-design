@@ -30,12 +30,12 @@ interface Message {
 }
 
 export default function ConsolePage() {
-  const [selectedModel, setSelectedModel] = useState("nexariq-pro");
+  const [selectedModel, setSelectedModel] = useState("kimi");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [temperature, setTemperature] = useState("0.7");
-  const [maxTokens, setMaxTokens] = useState("1000");
+  const [maxTokens, setMaxTokens] = useState("2000");
   const [totalTokens, setTotalTokens] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [streamingContent, setStreamingContent] = useState("");
@@ -43,9 +43,24 @@ export default function ConsolePage() {
   const [currentTypingId, setCurrentTypingId] = useState<string | null>(null);
 
   const models = [
-    { id: "nexariq-pro", name: "Nexariq Pro", description: "Most capable, highest cost" },
-    { id: "nexariq-fast", name: "Nexariq Fast", description: "Fast and efficient" },
-    { id: "nexariq-vision", name: "Nexariq Vision", description: "For image analysis" },
+    // Groq Models
+    { id: "kimi", name: "Kimi K2 Instruct", description: "Large context chat model" },
+    { id: "qwen3", name: "Qwen 3 32B", description: "Advanced reasoning" },
+    { id: "llama-4", name: "Llama 4 Maverick", description: "Meta's latest" },
+    { id: "gpt-oss", name: "GPT OSS 20B", description: "Open-source GPT" },
+    { id: "gpt-oss-120b", name: "GPT OSS 120B", description: "Large-scale model" },
+    // Chutes AI
+    { id: "glm-4.5-air", name: "GLM-4.5 Air", description: "Fast lightweight" },
+    // Cerebras
+    { id: "zai-glm-4.6", name: "ZAI GLM-4.6", description: "Chain-of-thought reasoning" },
+    // OpenRouter
+    { id: "deepseek-r1-qwen3-8b", name: "DeepSeek R1", description: "Reasoning with thinking" },
+    { id: "qwen3-coder", name: "Qwen3 Coder", description: "Code specialist" },
+    { id: "mistral-small-24b", name: "Mistral Small 24B", description: "Efficient chat" },
+    { id: "mistral-small-3.1-24b", name: "Mistral Small 3.1", description: "Enhanced performance" },
+    // Local Models
+    { id: "qwen3-local", name: "Qwen 3 Local", description: "Privacy-focused (Ollama)" },
+    { id: "glm-4.6", name: "GLM-4.6 Local", description: "Local reasoning (Ollama)" },
   ];
 
   const scrollToBottom = () => {

@@ -1,12 +1,19 @@
-# Nexariq Developer Portal
+# AJStudioz AI Developer Portal
 
-A production-ready AI LLM developer platform built with Next.js 16, Supabase, and the Vercel AI SDK.
+A production-ready multi-cloud AI developer platform built with Next.js 16, Supabase, and OpenAI-compatible API.
 
 ## Features
 
 ### Core Features
-- **Real LLM Integration**: Stream-based API with Nexariq models (Pro, Fast, Vision)
-- **Advanced Chat Console**: Interactive testing with typing effects and real-time token counting
+- **Multi-Cloud LLM Integration**: 13 AI models (11 cloud + 2 local) from 4 providers
+  - **Groq**: Kimi, Qwen3, Llama-4, GPT-OSS (20B & 120B)
+  - **Chutes AI**: GLM-4.5 Air
+  - **Cerebras**: ZAI GLM-4.6
+  - **OpenRouter**: DeepSeek R1, Qwen3 Coder, Mistral Small (24B & 3.1)
+  - **Local Ollama**: Qwen3 1.7B, GLM-4.6 (privacy mode)
+- **Advanced Chat Console**: Interactive testing with 13 models, typing effects, and real-time token counting
+- **Chain-of-Thought Reasoning**: Automatic extraction for reasoning models (DeepSeek R1, GLM-4.6)
+- **Rate Limit Protection**: Multi-key rotation for Groq (5 keys) and OpenRouter (5 keys)
 - **API Key Management**: Secure key generation, rotation, and granular permissions
 - **Request Logging**: Detailed request history with filtering, search, and export
 - **Usage Analytics**: Real-time dashboards with charts, trends, and cost breakdowns
@@ -58,8 +65,13 @@ Required:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role
 - `DATABASE_URL` - Neon PostgreSQL connection
-- `NEXARIQ_API_KEY` - Nexariq API key
-- `NEXARIQ_API_URL` - Nexariq API base URL
+
+AI Provider API Keys (Multi-Cloud):
+- `GROQ_API_KEY1` through `GROQ_API_KEY5` - Groq API keys (5 keys for rate limit protection)
+- `CHUTES_API_TOKEN` - Chutes AI API key
+- `CEREBRAS_API_KEY` - Cerebras AI API key
+- `OPENROUTER_API_KEY1` through `OPENROUTER_API_KEY5` - OpenRouter API keys (5 keys for rate limit protection)
+- `OLLAMA_URL` - Local Ollama server URL (default: http://localhost:11434)
 
 ## Setup
 
