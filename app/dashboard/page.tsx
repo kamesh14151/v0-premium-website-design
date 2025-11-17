@@ -88,6 +88,28 @@ export default function DashboardPage() {
       
       setEmail(user.email || null);
       
+      // Ensure user exists in database (for Neon compatibility)
+      try {
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", user.id)
+          .single();
+
+        if (!existingUser) {
+          await supabase.from("users").upsert([
+            {
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || null,
+              avatar_url: user.user_metadata?.avatar_url || null,
+            },
+          ], { onConflict: 'id' });
+        }
+      } catch (err) {
+        console.log('User sync skipped:', err);
+      }
+      
       // Fetch real stats from database
       try {
         // Get API calls count

@@ -42,6 +42,29 @@ export function CreateKeyDialog({
 
       if (!user) throw new Error("Not authenticated");
 
+      // Ensure user exists in database (for Neon compatibility)
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+
+      if (!existingUser) {
+        // Create user in database if not exists
+        const { error: userError } = await supabase.from("users").insert([
+          {
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || null,
+            avatar_url: user.user_metadata?.avatar_url || null,
+          },
+        ]);
+
+        if (userError && userError.code !== '23505') { // Ignore duplicate key error
+          throw userError;
+        }
+      }
+
       // Generate a random API key with nxq_ prefix
       const randomBytes = crypto.randomBytes(32).toString("hex");
       const randomKey = `nxq_${randomBytes}`;
@@ -67,6 +90,7 @@ export function CreateKeyDialog({
       onKeyCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error creating key");
+      console.error('Key creation error:', err);
     } finally {
       setIsCreating(false);
     }
