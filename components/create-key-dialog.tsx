@@ -55,6 +55,8 @@ export function CreateKeyDialog({
           user_id: user.id,
           name: keyName,
           key_hash: keyHash,
+          key_prefix: "nxq_",
+          is_active: true,
         },
       ]);
 

@@ -61,21 +61,18 @@ export default function DashboardPage() {
     costThisMonth: 0,
   });
 
-  const [chartData] = useState([
-    { name: 'Mon', calls: 4200, tokens: 2400, latency: 120 },
-    { name: 'Tue', calls: 6300, tokens: 2210, latency: 140 },
-    { name: 'Wed', calls: 8200, tokens: 2290, latency: 110 },
-    { name: 'Thu', calls: 7800, tokens: 2000, latency: 130 },
-    { name: 'Fri', calls: 9200, tokens: 2181, latency: 125 },
-    { name: 'Sat', calls: 11200, tokens: 2500, latency: 115 },
-    { name: 'Sun', cases: 9800, tokens: 2100, latency: 140 },
+  const [chartData, setChartData] = useState([
+    { name: 'Mon', calls: 0, tokens: 0, latency: 0 },
+    { name: 'Tue', calls: 0, tokens: 0, latency: 0 },
+    { name: 'Wed', calls: 0, tokens: 0, latency: 0 },
+    { name: 'Thu', calls: 0, tokens: 0, latency: 0 },
+    { name: 'Fri', calls: 0, tokens: 0, latency: 0 },
+    { name: 'Sat', calls: 0, tokens: 0, latency: 0 },
+    { name: 'Sun', calls: 0, tokens: 0, latency: 0 },
   ]);
 
-  const [modelDistribution] = useState([
-    { name: 'GPT-4', value: 45, fill: '#2563eb' },
-    { name: 'GPT-3.5', value: 30, fill: '#06b6d4' },
-    { name: 'Claude', value: 20, fill: '#8b5cf6' },
-    { name: 'Others', value: 5, fill: '#06b6d4' },
+  const [modelDistribution, setModelDistribution] = useState([
+    { name: 'No data', value: 1, fill: '#2563eb' },
   ]);
 
   useEffect(() => {
@@ -104,7 +101,7 @@ export default function DashboardPage() {
           .from('api_keys')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
-          .eq('status', 'active');
+          .eq('is_active', true);
 
         // Get average latency
         const { data: latencyData } = await supabase
@@ -145,6 +142,48 @@ export default function DashboardPage() {
           uptime: 99.98,
           costThisMonth: costThisMonth,
         });
+
+        // Fetch chart data
+        const { data: weekData } = await supabase
+          .from('request_history')
+          .select('*')
+          .eq('user_id', user.id)
+          .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+          .order('created_at', { ascending: true });
+
+        // Process weekly chart data
+        const last7Days = [...Array(7)].map((_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - (6 - i));
+          return { date: date.toISOString().split('T')[0], name: date.toLocaleDateString('en-US', { weekday: 'short' }) };
+        });
+
+        const chartDataProcessed = last7Days.map(({ date, name }) => {
+          const dayRequests = (weekData || []).filter((r: any) => r.created_at.startsWith(date));
+          const totalTokens = dayRequests.reduce((sum: number, r: any) => sum + (r.total_tokens || 0), 0);
+          const avgLat = dayRequests.length > 0
+            ? Math.round(dayRequests.reduce((sum: number, r: any) => sum + (r.response_time || 0), 0) / dayRequests.length)
+            : 0;
+          return { name, calls: dayRequests.length, tokens: totalTokens, latency: avgLat };
+        });
+        setChartData(chartDataProcessed);
+
+        // Process model distribution
+        const modelCounts: any = {};
+        (weekData || []).forEach((r: any) => {
+          const model = r.model || 'Unknown';
+          modelCounts[model] = (modelCounts[model] || 0) + 1;
+        });
+
+        const colors = ['#2563eb', '#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b'];
+        const modelData = Object.entries(modelCounts).map(([name, value], idx) => ({
+          name,
+          value: value as number,
+          fill: colors[idx % colors.length],
+        }));
+        if (modelData.length > 0) {
+          setModelDistribution(modelData);
+        }
       } catch (error) {
         console.error('Error fetching stats:', error);
         // Set default values on error
@@ -252,7 +291,13 @@ export default function DashboardPage() {
                     <XAxis stroke="#666" dataKey="name" />
                     <YAxis stroke="#666" />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '8px' }} 
+                      contentStyle={{ 
+                        backgroundColor: '#0a0a0a', 
+                        border: '1px solid #1a1a1a', 
+                        borderRadius: '8px',
+                        color: '#ffffff',
+                        fontFamily: 'monospace'
+                      }} 
                       cursor={{ fill: 'rgba(37, 99, 235, 0.1)' }}
                     />
                     <Area type="monotone" dataKey="calls" stroke="#2563eb" strokeWidth={2} fill="url(#colorCalls)" />
@@ -282,7 +327,12 @@ export default function DashboardPage() {
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a' }} />
+                    <Tooltip contentStyle={{ 
+                      backgroundColor: '#0a0a0a', 
+                      border: '1px solid #1a1a1a',
+                      color: '#ffffff',
+                      fontFamily: 'monospace'
+                    }} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
