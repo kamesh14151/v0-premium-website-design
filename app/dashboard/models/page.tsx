@@ -46,8 +46,8 @@ const models: ModelSpec[] = [
     trainingData: "Moonshot AI",
     description: "Advanced conversational AI with large context window",
     capabilities: ["Large context", "Multi-turn chat", "Reasoning", "Chinese/English"],
-    provider: "Groq Cloud",
-    providerLogo: "/logos/groq.svg",
+    provider: "Groq",
+    providerLogo: "/logos/groq.png",
   },
   {
     id: "qwen3",
@@ -60,8 +60,8 @@ const models: ModelSpec[] = [
     trainingData: "Alibaba Cloud",
     description: "Powerful reasoning model from Alibaba",
     capabilities: ["Advanced reasoning", "Long context", "Multilingual", "Math & Logic"],
-    provider: "Groq Cloud",
-    providerLogo: "/logos/groq.svg",
+    provider: "Groq",
+    providerLogo: "/logos/groq.png",
   },
   {
     id: "llama-4",
@@ -74,8 +74,8 @@ const models: ModelSpec[] = [
     trainingData: "Meta",
     description: "Meta's latest Llama model with enhanced capabilities",
     capabilities: ["Code generation", "Reasoning", "Instruction following", "Efficiency"],
-    provider: "Groq Cloud",
-    providerLogo: "/logos/groq.svg",
+    provider: "Groq",
+    providerLogo: "/logos/groq.png",
   },
   {
     id: "gpt-oss",
@@ -88,8 +88,8 @@ const models: ModelSpec[] = [
     trainingData: "OpenAI Compatible",
     description: "Open-source GPT-style model with high token output",
     capabilities: ["Long output", "General purpose", "Chat", "Text generation"],
-    provider: "Groq Cloud",
-    providerLogo: "/logos/groq.svg",
+    provider: "OpenAI",
+    providerLogo: "/logos/openai.png",
   },
   {
     id: "gpt-oss-120b",
@@ -102,8 +102,8 @@ const models: ModelSpec[] = [
     trainingData: "OpenAI Compatible",
     description: "Large-scale open-source GPT model for advanced tasks",
     capabilities: ["Advanced reasoning", "Long output", "Complex tasks", "High quality"],
-    provider: "Groq Cloud",
-    providerLogo: "/logos/groq.svg",
+    provider: "OpenAI",
+    providerLogo: "/logos/openai.png",
   },
   
   // Chutes AI Models (1 model)
@@ -118,8 +118,8 @@ const models: ModelSpec[] = [
     trainingData: "Zhipu AI",
     description: "Lightweight GLM model for efficient inference",
     capabilities: ["Fast inference", "Chat", "Multilingual", "Efficient"],
-    provider: "Chutes AI",
-    providerLogo: "/logos/chutes.svg",
+    provider: "Zhipu AI (Z.ai)",
+    providerLogo: "/logos/zhipu.png",
   },
   
   // Cerebras AI Models (1 model)
@@ -134,8 +134,8 @@ const models: ModelSpec[] = [
     trainingData: "Zhipu AI",
     description: "Advanced reasoning model with chain-of-thought capabilities",
     capabilities: ["Chain-of-thought", "Advanced reasoning", "Long output", "Streaming"],
-    provider: "Cerebras AI",
-    providerLogo: "/logos/cerebras.svg",
+    provider: "Zhipu AI (Z.ai)",
+    providerLogo: "/logos/zhipu.png",
   },
   
   // OpenRouter Models (4 models)
@@ -178,8 +178,8 @@ const models: ModelSpec[] = [
     trainingData: "Mistral AI",
     description: "Efficient Mistral model for general tasks",
     capabilities: ["Chat", "Reasoning", "Instruction following", "Efficient"],
-    provider: "OpenRouter",
-    providerLogo: "/logos/openrouter.svg",
+    provider: "Mistral AI",
+    providerLogo: "/logos/mistral.png",
   },
   {
     id: "mistral-small-3.1-24b",
@@ -192,8 +192,8 @@ const models: ModelSpec[] = [
     trainingData: "Mistral AI",
     description: "Latest Mistral model with improved performance",
     capabilities: ["Enhanced reasoning", "Chat", "General purpose", "Fast"],
-    provider: "OpenRouter",
-    providerLogo: "/logos/openrouter.svg",
+    provider: "Mistral AI",
+    providerLogo: "/logos/mistral.png",
   },
   
   // Local Ollama Models (2 models)
@@ -222,8 +222,8 @@ const models: ModelSpec[] = [
     trainingData: "Zhipu AI",
     description: "Local reasoning model with chain-of-thought (requires Ollama)",
     capabilities: ["Chain-of-thought", "Privacy", "Local inference", "Reasoning"],
-    provider: "Ollama Local",
-    providerLogo: "/logos/ollama.svg",
+    provider: "Zhipu AI (Z.ai) - Local",
+    providerLogo: "/logos/zhipu.png",
   },
 ];
 

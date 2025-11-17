@@ -1,0 +1,20 @@
+<svg width="814" height="578" viewBox="0 0 814 578" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Top Yellow bars -->
+  <rect x="116" width="116" height="116" fill="#FFD500"/>
+  <rect x="465" width="116" height="116" fill="#FFD500"/>
+  
+  <!-- Second row Orange bars -->
+  <rect x="116" y="116" width="233" height="116" fill="#FFA500"/>
+  <rect x="465" y="116" width="233" height="116" fill="#FFA500"/>
+  
+  <!-- Third row Deep Orange -->
+  <rect x="116" y="232" width="581" height="116" fill="#FF8000"/>
+  
+  <!-- Fourth row Red-Orange with white gaps -->
+  <rect width="233" height="116" y="348" x="116" fill="#FF5722"/>
+  <rect x="465" y="348" width="116" height="116" fill="#FF5722"/>
+  
+  <!-- Bottom Red bar -->
+  <rect width="349" height="116" y="464" fill="#E91E24"/>
+  <rect x="465" y="464" width="349" height="116" fill="#E91E24"/>
+</svg>
