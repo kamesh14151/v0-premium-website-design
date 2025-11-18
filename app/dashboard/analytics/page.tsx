@@ -230,7 +230,16 @@ export default function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" vertical={false} />
                 <XAxis dataKey="date" stroke="#666" />
                 <YAxis stroke="#666" />
-                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '8px', color: '#ffffff', fontFamily: 'monospace' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#0a0a0a', 
+                    border: '1px solid #1a1a1a', 
+                    borderRadius: '8px', 
+                    fontFamily: 'monospace' 
+                  }}
+                  itemStyle={{ color: '#ffffff' }}
+                  labelStyle={{ color: '#ffffff' }}
+                />
                 <Legend />
                 <Area type="monotone" dataKey="requests" stroke="#2563eb" fill="url(#colorRequests)" name="Requests" />
                 <Line type="monotone" dataKey="errors" stroke="#dc2626" strokeWidth={2} name="Errors" />
@@ -260,7 +269,16 @@ export default function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" vertical={false} />
                 <XAxis dataKey="date" stroke="#666" />
                 <YAxis stroke="#666" />
-                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '8px', color: '#ffffff', fontFamily: 'monospace' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#0a0a0a', 
+                    border: '1px solid #1a1a1a', 
+                    borderRadius: '8px', 
+                    fontFamily: 'monospace' 
+                  }}
+                  itemStyle={{ color: '#ffffff' }}
+                  labelStyle={{ color: '#ffffff' }}
+                />
                 <Legend />
                 <Area type="monotone" dataKey="input" stroke="#2563eb" fill="url(#colorInput)" name="Input Tokens" />
                 <Area type="monotone" dataKey="output" stroke="#10b981" fill="url(#colorOutput)" name="Output Tokens" />
@@ -292,7 +310,16 @@ export default function AnalyticsPage() {
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '8px', color: '#ffffff', fontFamily: 'monospace' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#0a0a0a', 
+                    border: '1px solid #1a1a1a', 
+                    borderRadius: '8px', 
+                    fontFamily: 'monospace' 
+                  }}
+                  itemStyle={{ color: '#ffffff' }}
+                  labelStyle={{ color: '#ffffff' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -319,7 +346,16 @@ export default function AnalyticsPage() {
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '8px', color: '#ffffff', fontFamily: 'monospace' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#0a0a0a', 
+                    border: '1px solid #1a1a1a', 
+                    borderRadius: '8px', 
+                    fontFamily: 'monospace' 
+                  }}
+                  itemStyle={{ color: '#ffffff' }}
+                  labelStyle={{ color: '#ffffff' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>

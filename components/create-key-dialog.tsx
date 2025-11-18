@@ -27,6 +27,17 @@ export function CreateKeyDialog({
   const [error, setError] = useState<string | null>(null);
   const [createdKey, setCreatedKey] = useState<string | null>(null);
 
+  // Reset state when dialog opens/closes
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Reset all state when closing
+      setCreatedKey(null);
+      setKeyName("");
+      setError(null);
+    }
+    onOpenChange(newOpen);
+  };
+
   const handleCreateKey = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
@@ -49,8 +60,7 @@ export function CreateKeyDialog({
       }
 
       setCreatedKey(data.key);
-      setKeyName("");
-      onKeyCreated();
+      // Don't call onKeyCreated here, wait until user closes dialog
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error creating key");
       console.error('Key creation error:', err);
@@ -60,7 +70,7 @@ export function CreateKeyDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New API Key</DialogTitle>
@@ -94,8 +104,8 @@ export function CreateKeyDialog({
               </Button>
               <Button
                 onClick={() => {
-                  setCreatedKey(null);
-                  onOpenChange(false);
+                  handleOpenChange(false);
+                  onKeyCreated(); // Refresh the list when done
                 }}
               >
                 Done
@@ -119,7 +129,7 @@ export function CreateKeyDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => handleOpenChange(false)}
               >
                 Cancel
               </Button>
