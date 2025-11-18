@@ -26,21 +26,14 @@ export default function ApiKeysPage() {
 
   const loadApiKeys = async () => {
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const response = await fetch('/api/keys');
+      const data = await response.json();
 
-      if (user) {
-        const { data, error } = await supabase
-          .from("api_keys")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
-        setKeys(data || []);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load API keys');
       }
+
+      setKeys(data.keys || []);
     } catch (error) {
       console.error("Error loading API keys:", error);
     } finally {
@@ -70,15 +63,15 @@ export default function ApiKeysPage() {
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Active Keys</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : keys.filter(k => k.status === 'active').length}</p>
-            <p className="text-xs text-green-400 mt-2">{keys.filter(k => k.status === 'active').length} operational</p>
+            <p className="text-3xl font-bold">{isLoading ? '...' : keys.filter(k => k.is_active).length}</p>
+            <p className="text-xs text-green-400 mt-2">{keys.filter(k => k.is_active).length} operational</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground mb-1 uppercase">Total Keys</p>
             <p className="text-3xl font-bold">{isLoading ? '...' : keys.length}</p>
-            <p className="text-xs text-muted-foreground mt-2">{keys.filter(k => k.status === 'revoked').length} revoked</p>
+            <p className="text-xs text-muted-foreground mt-2">{keys.filter(k => !k.is_active).length} inactive</p>
           </CardContent>
         </Card>
         <Card className="bg-black/40 backdrop-blur border-white/10">
