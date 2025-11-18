@@ -25,13 +25,13 @@ function StatCard({
   status?: "normal" | "warning" | "critical";
 }) {
   const statusColors = {
-    normal: "border-white/10 hover:border-white/20",
+    normal: "",
     warning: "border-amber-500/30 hover:border-amber-500/50 bg-amber-500/5",
     critical: "border-red-500/30 hover:border-red-500/50 bg-red-500/5",
   };
 
   return (
-    <Card className={`bg-black/40 backdrop-blur border transition-all hover:shadow-lg hover:shadow-primary/10 ${statusColors[status]}`}>
+    <Card className={`backdrop-blur border transition-all hover:shadow-lg hover:shadow-primary/10 ${statusColors[status]}`}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</CardTitle>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-black">
+    <div className="min-h-screen w-full flex flex-col bg-background">
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
         <div className="grid gap-8">
           {/* Header Section */}
@@ -202,7 +202,7 @@ export default function DashboardPage() {
 
           {/* Advanced Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2 bg-black/40 backdrop-blur border-white/10 hover:border-white/20 transition-all">
+            <Card className="lg:col-span-2 backdrop-blur transition-all">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -210,9 +210,9 @@ export default function DashboardPage() {
                     <CardDescription>API calls and latency trends</CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="border-white/10">7d</Button>
-                    <Button variant="outline" size="sm" className="border-white/10 bg-white/5">30d</Button>
-                    <Button variant="outline" size="sm" className="border-white/10">90d</Button>
+                    <Button variant="outline" size="sm">7d</Button>
+                    <Button variant="outline" size="sm" className="bg-muted">30d</Button>
+                    <Button variant="outline" size="sm">90d</Button>
                   </div>
                 </div>
               </CardHeader>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-black/40 backdrop-blur border-white/10 hover:border-white/20 transition-all">
+            <Card className="backdrop-blur transition-all">
               <CardHeader>
                 <CardTitle className="text-sm">Model Distribution</CardTitle>
                 <CardDescription className="text-xs">Usage breakdown by model</CardDescription>
@@ -279,7 +279,7 @@ export default function DashboardPage() {
 
           {/* System Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-black/40 backdrop-blur border-white/10">
+            <Card className="backdrop-blur">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm">System Status</CardTitle>
@@ -295,7 +295,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-black/40 backdrop-blur border-white/10">
+            <Card className="backdrop-blur">
               <CardHeader>
                 <CardTitle className="text-sm">This Month Costs</CardTitle>
               </CardHeader>
@@ -308,7 +308,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-black/40 backdrop-blur border-white/10">
+            <Card className="backdrop-blur">
               <CardHeader>
                 <CardTitle className="text-sm">Team Collaboration</CardTitle>
               </CardHeader>
@@ -325,25 +325,25 @@ export default function DashboardPage() {
           {/* Quick Actions and Alerts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <Card className="bg-black/40 backdrop-blur border-white/10">
+              <Card className="backdrop-blur">
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                   <CardDescription>Get started with your API</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Link href="/dashboard/api-keys" className="group p-4 rounded-lg border border-white/10 hover:border-primary/50 hover:bg-primary/5 transition">
+                  <Link href="/dashboard/api-keys" className="group p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition">
                     <div className="text-xl mb-2">🔑</div>
                     <h4 className="font-semibold text-sm mb-1">Generate API Key</h4>
                     <p className="text-xs text-muted-foreground">Create new credentials</p>
                     <ArrowRight className="w-4 h-4 text-accent mt-3 opacity-0 group-hover:opacity-100 transition" />
                   </Link>
-                  <Link href="/dashboard/console" className="group p-4 rounded-lg border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition">
+                  <Link href="/dashboard/console" className="group p-4 rounded-lg border border-border hover:border-accent/50 hover:bg-accent/5 transition">
                     <div className="text-xl mb-2">💻</div>
                     <h4 className="font-semibold text-sm mb-1">API Console</h4>
                     <p className="text-xs text-muted-foreground">Test API endpoints</p>
                     <ArrowRight className="w-4 h-4 text-accent mt-3 opacity-0 group-hover:opacity-100 transition" />
                   </Link>
-                  <Link href="/dashboard/request-history" className="group p-4 rounded-lg border border-white/10 hover:border-secondary/50 hover:bg-secondary/5 transition">
+                  <Link href="/dashboard/request-history" className="group p-4 rounded-lg border border-border hover:border-secondary/50 hover:bg-secondary/5 transition">
                     <div className="text-xl mb-2">📊</div>
                     <h4 className="font-semibold text-sm mb-1">Request History</h4>
                     <p className="text-xs text-muted-foreground">View all requests</p>
@@ -369,7 +369,7 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/40 backdrop-blur border-white/10">
+              <Card className="backdrop-blur">
                 <CardHeader>
                   <CardTitle className="text-sm">Account Info</CardTitle>
                 </CardHeader>

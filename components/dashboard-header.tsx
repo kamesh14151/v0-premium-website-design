@@ -28,7 +28,7 @@ export function DashboardHeader() {
   ];
 
   return (
-    <header className="border-b border-white/10 bg-black/80 backdrop-blur-xl sticky top-0 z-40">
+    <header className="border-b border-border bg-card/80 backdrop-blur-xl sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
@@ -53,7 +53,7 @@ export function DashboardHeader() {
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                     isActive
                       ? "bg-primary/20 text-accent border border-primary/30"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   {item.label}
@@ -66,19 +66,19 @@ export function DashboardHeader() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           
-          <Button variant="ghost" size="icon" className="relative hover:bg-white/5 dark:hover:bg-white/5">
+          <Button variant="ghost" size="icon" className="relative hover:bg-muted">
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full animate-pulse"></span>
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden sm:flex gap-2 border-white/10 hover:border-accent/30 hover:bg-accent/5">
+              <Button variant="outline" size="sm" className="hidden sm:flex gap-2 hover:bg-muted">
                 <Settings className="w-4 h-4" />
                 Menu
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-black/90 border border-white/10 backdrop-blur-xl">
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/team" className="cursor-pointer flex items-center gap-2">
                   <Users className="w-4 h-4" />
@@ -107,14 +107,14 @@ export function DashboardHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button variant="outline" size="icon" className="lg:hidden border-white/10 hover:border-accent/30">
+          <Button variant="outline" size="icon" className="lg:hidden">
             ☰
           </Button>
         </div>
       </div>
 
       {/* Mobile nav */}
-      <div className="lg:hidden border-t border-white/10 px-6 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
+      <div className="lg:hidden border-t border-border px-6 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
@@ -123,8 +123,8 @@ export function DashboardHeader() {
               href={item.href}
               className={`whitespace-nowrap text-xs px-3 py-1 rounded font-medium transition ${
                 isActive
-                  ? "bg-primary text-white"
-                  : "text-muted-foreground hover:bg-white/5"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
               }`}
             >
               {item.label}
