@@ -110,102 +110,18 @@ export default function DashboardPage() {
         console.log('User sync skipped:', err);
       }
       
-      // Fetch real stats from database
+      // Fetch real stats from API
       try {
-        // Get API calls count
-        const { count: apiCallsCount } = await supabase
-          .from('request_history')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+        const response = await fetch('/api/stats');
+        const data = await response.json();
 
-        // Get active API keys count
-        const { count: activeKeysCount } = await supabase
-          .from('api_keys')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('is_active', true);
-
-        // Get average latency
-        const { data: latencyData } = await supabase
-          .from('request_history')
-          .select('response_time')
-          .eq('user_id', user.id)
-          .not('response_time', 'is', null)
-          .limit(100);
-
-        const avgLatency = latencyData && latencyData.length > 0
-          ? Math.round(latencyData.reduce((sum, r) => sum + (r.response_time || 0), 0) / latencyData.length)
-          : 0;
-
-        // Get total cost this month
-        const startOfMonth = new Date();
-        startOfMonth.setDate(1);
-        startOfMonth.setHours(0, 0, 0, 0);
-
-        const { data: costData } = await supabase
-          .from('request_history')
-          .select('cost')
-          .eq('user_id', user.id)
-          .gte('created_at', startOfMonth.toISOString());
-
-        const costThisMonth = costData && costData.length > 0
-          ? costData.reduce((sum, r) => sum + (r.cost || 0), 0)
-          : 0;
-
-        // Calculate quota used (assuming 100k requests per month limit)
-        const quotaLimit = 100000;
-        const quotaUsed = apiCallsCount ? Math.round((apiCallsCount / quotaLimit) * 100) : 0;
-
-        setStats({
-          apiCalls: apiCallsCount || 0,
-          activeKeys: activeKeysCount || 0,
-          quotaUsed: Math.min(quotaUsed, 100),
-          avgLatency: avgLatency,
-          uptime: 99.98,
-          costThisMonth: costThisMonth,
-        });
-
-        // Fetch chart data
-        const { data: weekData } = await supabase
-          .from('request_history')
-          .select('*')
-          .eq('user_id', user.id)
-          .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-          .order('created_at', { ascending: true });
-
-        // Process weekly chart data
-        const last7Days = [...Array(7)].map((_, i) => {
-          const date = new Date();
-          date.setDate(date.getDate() - (6 - i));
-          return { date: date.toISOString().split('T')[0], name: date.toLocaleDateString('en-US', { weekday: 'short' }) };
-        });
-
-        const chartDataProcessed = last7Days.map(({ date, name }) => {
-          const dayRequests = (weekData || []).filter((r: any) => r.created_at.startsWith(date));
-          const totalTokens = dayRequests.reduce((sum: number, r: any) => sum + (r.total_tokens || 0), 0);
-          const avgLat = dayRequests.length > 0
-            ? Math.round(dayRequests.reduce((sum: number, r: any) => sum + (r.response_time || 0), 0) / dayRequests.length)
-            : 0;
-          return { name, calls: dayRequests.length, tokens: totalTokens, latency: avgLat };
-        });
-        setChartData(chartDataProcessed);
-
-        // Process model distribution
-        const modelCounts: any = {};
-        (weekData || []).forEach((r: any) => {
-          const model = r.model || 'Unknown';
-          modelCounts[model] = (modelCounts[model] || 0) + 1;
-        });
-
-        const colors = ['#2563eb', '#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b'];
-        const modelData = Object.entries(modelCounts).map(([name, value], idx) => ({
-          name,
-          value: value as number,
-          fill: colors[idx % colors.length],
-        }));
-        if (modelData.length > 0) {
-          setModelDistribution(modelData);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load stats');
         }
+
+        setStats(data.stats);
+        setChartData(data.chartData);
+        setModelDistribution(data.modelDistribution);
       } catch (error) {
         console.error('Error fetching stats:', error);
         // Set default values on error

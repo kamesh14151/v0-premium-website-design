@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Download, Filter, Clock, TrendingUp, Copy, Eye, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { createClient } from "@/lib/supabase/client";
 
 export default function RequestHistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,22 +28,14 @@ export default function RequestHistoryPage() {
 
   const loadRequests = async () => {
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const response = await fetch('/api/requests');
+      const data = await response.json();
 
-      if (!user) return;
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load requests');
+      }
 
-      // Fetch requests
-      const { data: requestsData, error } = await supabase
-        .from('request_history')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-
-      const formattedRequests = (requestsData || []).map((req: any) => ({
+      const formattedRequests = (data.requests || []).map((req: any) => ({
         id: req.id,
         model: req.model || 'Unknown',
         tokens: req.total_tokens || 0,
@@ -58,38 +49,8 @@ export default function RequestHistoryPage() {
       }));
 
       setRequests(formattedRequests);
-
-      // Calculate stats
-      const totalRequests = formattedRequests.length;
-      const successfulRequests = formattedRequests.filter((r: any) => r.status === 200).length;
-      const avgResponse = formattedRequests.reduce((sum: number, r: any) => sum + r.latency, 0) / (totalRequests || 1);
-      const totalCost = formattedRequests.reduce((sum: number, r: any) => sum + parseFloat(r.cost.replace('$', '')), 0);
-      const errors = totalRequests - successfulRequests;
-
-      setStats({
-        totalRequests,
-        avgResponse: Math.round(avgResponse) / 1000,
-        successRate: totalRequests > 0 ? Math.round((successfulRequests / totalRequests) * 1000) / 10 : 0,
-        errors,
-        totalCost,
-      });
-
-      // Generate latency chart data
-      const last24Hours = formattedRequests.slice(0, 24);
-      const chartData = [];
-      for (let i = 0; i < 7; i++) {
-        const startIdx = i * 3;
-        const endIdx = startIdx + 3;
-        const slice = last24Hours.slice(startIdx, endIdx);
-        if (slice.length > 0) {
-          chartData.push({
-            time: `${i * 4}:00`,
-            latency: Math.round(slice.reduce((sum: number, r: any) => sum + r.latency, 0) / slice.length),
-            errors: slice.filter((r: any) => r.status !== 200).length,
-          });
-        }
-      }
-      setLatencyData(chartData);
+      setStats(data.stats);
+      setLatencyData(data.latencyData);
 
     } catch (error) {
       console.error('Error loading requests:', error);
