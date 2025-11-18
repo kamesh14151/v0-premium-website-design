@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,13 +33,16 @@ export function ApiKeysList({
   const handleDeleteKey = async (keyId: string) => {
     setIsDeleting(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("api_keys")
-        .delete()
-        .eq("id", keyId);
+      const response = await fetch(`/api/keys?id=${keyId}`, {
+        method: 'DELETE',
+      });
 
-      if (error) throw error;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete API key');
+      }
+
       setKeyToDelete(null);
       onKeyDeleted();
     } catch (error) {
