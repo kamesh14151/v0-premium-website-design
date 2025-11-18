@@ -52,8 +52,16 @@ export function ApiKeysList({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   };
 
   return (
@@ -62,14 +70,16 @@ export function ApiKeysList({
         {keys.map((key) => (
           <div
             key={key.id}
-            className="flex items-center justify-between p-4 border border-border rounded-lg"
+            className="flex items-center justify-between p-4 border border-border rounded-lg hover:border-white/20 transition-all"
           >
             <div>
               <h4 className="font-semibold">{key.name}</h4>
               <div className="text-xs text-muted-foreground space-y-1 mt-2">
-                <p>Created: {formatDate(key.created_at)}</p>
-                {key.last_used_at && (
-                  <p>Last used: {formatDate(key.last_used_at)}</p>
+                <p>Created: {formatDateTime(key.created_at)}</p>
+                {key.last_used_at ? (
+                  <p>Last used: {formatDateTime(key.last_used_at)}</p>
+                ) : (
+                  <p>Last used: Never</p>
                 )}
               </div>
             </div>
