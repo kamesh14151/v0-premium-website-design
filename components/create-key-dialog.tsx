@@ -12,8 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { createClient } from "@/lib/supabase/client";
-import crypto from "crypto";
 
 export function CreateKeyDialog({
   open,
@@ -35,57 +33,22 @@ export function CreateKeyDialog({
     setError(null);
 
     try {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // Call API route to create key in Neon
+      const response = await fetch('/api/keys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: keyName }),
+      });
 
-      if (!user) throw new Error("Not authenticated");
+      const data = await response.json();
 
-      // Ensure user exists in database (for Neon compatibility)
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select("id")
-        .eq("id", user.id)
-        .single();
-
-      if (!existingUser) {
-        // Create user in database if not exists
-        const { error: userError } = await supabase.from("users").insert([
-          {
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || null,
-            avatar_url: user.user_metadata?.avatar_url || null,
-          },
-        ]);
-
-        if (userError && userError.code !== '23505') { // Ignore duplicate key error
-          throw userError;
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create API key');
       }
 
-      // Generate a random API key with nxq_ prefix
-      const randomBytes = crypto.randomBytes(32).toString("hex");
-      const randomKey = `nxq_${randomBytes}`;
-      const keyHash = crypto
-        .createHash("sha256")
-        .update(randomKey)
-        .digest("hex");
-
-      const { error: dbError } = await supabase.from("api_keys").insert([
-        {
-          user_id: user.id,
-          name: keyName,
-          key_hash: keyHash,
-          key_prefix: "nxq_",
-          is_active: true,
-        },
-      ]);
-
-      if (dbError) throw dbError;
-
-      setCreatedKey(randomKey);
+      setCreatedKey(data.key);
       setKeyName("");
       onKeyCreated();
     } catch (err) {
