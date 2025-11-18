@@ -20,7 +20,7 @@ export default async function DashboardLayout({
     <div className="flex flex-col min-h-svh">
       <DashboardHeader />
       <main className="flex-1">{children}</main>
-      <footer className="border-t border-white/10 bg-black/40 backdrop-blur py-6">
+      <footer className="border-t border-border bg-card/40 backdrop-blur py-6">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-sm text-muted-foreground">
@@ -30,7 +30,7 @@ export default async function DashboardLayout({
               <span className="text-muted-foreground">Developed with</span>
               <span className="text-red-500 animate-pulse">❤️</span>
               <span className="text-muted-foreground">by</span>
-              <span className="font-bold text-primary">AJ STUDIOZ</span>
+              <img src="/logos/aj-studioz-logo.jpeg" alt="AJ STUDIOZ" className="h-6 w-auto rounded" />
             </div>
           </div>
         </div>

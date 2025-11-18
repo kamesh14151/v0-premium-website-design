@@ -60,8 +60,8 @@ const models: ModelSpec[] = [
     trainingData: "Alibaba Cloud",
     description: "Powerful reasoning model from Alibaba",
     capabilities: ["Advanced reasoning", "Long context", "Multilingual", "Math & Logic"],
-    provider: "Groq",
-    providerLogo: "/groq-logo.png",
+    provider: "Qwen / Alibaba",
+    providerLogo: "/qwen-logo.png",
   },
   {
     id: "llama-4",
@@ -74,8 +74,8 @@ const models: ModelSpec[] = [
     trainingData: "Meta",
     description: "Meta's latest Llama model with enhanced capabilities",
     capabilities: ["Code generation", "Reasoning", "Instruction following", "Efficiency"],
-    provider: "Groq",
-    providerLogo: "/groq-logo.png",
+    provider: "Meta AI",
+    providerLogo: "/meta-logo.svg",
   },
   {
     id: "gpt-oss",
@@ -119,7 +119,7 @@ const models: ModelSpec[] = [
     description: "Lightweight GLM model for efficient inference",
     capabilities: ["Fast inference", "Chat", "Multilingual", "Efficient"],
     provider: "Zhipu AI (Z.ai)",
-    providerLogo: "/logos/zhipu.png",
+    providerLogo: "/zhipu-logo.svg",
   },
   
   // Cerebras AI Models (1 model)
@@ -135,7 +135,7 @@ const models: ModelSpec[] = [
     description: "Advanced reasoning model with chain-of-thought capabilities",
     capabilities: ["Chain-of-thought", "Advanced reasoning", "Long output", "Streaming"],
     provider: "Zhipu AI (Z.ai)",
-    providerLogo: "/logos/zhipu.png",
+    providerLogo: "/zhipu-logo.svg",
   },
   
   // OpenRouter Models (4 models)
@@ -150,8 +150,8 @@ const models: ModelSpec[] = [
     trainingData: "DeepSeek",
     description: "Reasoning-focused model with thinking process extraction",
     capabilities: ["Chain-of-thought", "Reasoning", "Problem solving", "Explainability"],
-    provider: "OpenRouter",
-    providerLogo: "/logos/openrouter.svg",
+    provider: "DeepSeek",
+    providerLogo: "/deepseek-logo.png",
   },
   {
     id: "qwen3-coder",
@@ -164,8 +164,8 @@ const models: ModelSpec[] = [
     trainingData: "Alibaba Cloud",
     description: "Specialized coding model for software development",
     capabilities: ["Code generation", "Code completion", "Debugging", "Multi-language"],
-    provider: "OpenRouter",
-    providerLogo: "/logos/openrouter.svg",
+    provider: "Qwen / Alibaba",
+    providerLogo: "/qwen-logo.png",
   },
   {
     id: "mistral-small-24b",
@@ -208,8 +208,8 @@ const models: ModelSpec[] = [
     trainingData: "Alibaba Cloud",
     description: "Local privacy-focused model (requires Ollama)",
     capabilities: ["Privacy", "Local inference", "Fast", "No internet required"],
-    provider: "Ollama Local",
-    providerLogo: "/logos/ollama.svg",
+    provider: "Qwen / Alibaba",
+    providerLogo: "/qwen-logo.png",
   },
   {
     id: "glm-4.6",
@@ -223,7 +223,7 @@ const models: ModelSpec[] = [
     description: "Local reasoning model with chain-of-thought (requires Ollama)",
     capabilities: ["Chain-of-thought", "Privacy", "Local inference", "Reasoning"],
     provider: "Zhipu AI (Z.ai) - Local",
-    providerLogo: "/logos/zhipu.png",
+    providerLogo: "/zhipu-logo.svg",
   },
 ];
 
