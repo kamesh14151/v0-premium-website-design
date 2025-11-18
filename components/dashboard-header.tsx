@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +30,17 @@ export function DashboardHeader() {
     <header className="border-b border-white/10 bg-black/80 backdrop-blur-xl sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/dashboard" className="text-2xl font-bold bg-gradient-to-r from-primary via-cyan-400 to-accent bg-clip-text text-transparent hover:opacity-80 transition">
-            Nexariq
+          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
+            <Image 
+              src="/nexariq-logo.png" 
+              alt="Nexariq Logo" 
+              width={32} 
+              height={32}
+              className="object-contain"
+            />
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary via-cyan-400 to-accent bg-clip-text text-transparent">
+              Nexariq
+            </span>
           </Link>
           <nav className="hidden lg:flex gap-1">
             {navItems.map((item) => {

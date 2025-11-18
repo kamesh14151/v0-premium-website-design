@@ -47,7 +47,7 @@ const models: ModelSpec[] = [
     description: "Advanced conversational AI with large context window",
     capabilities: ["Large context", "Multi-turn chat", "Reasoning", "Chinese/English"],
     provider: "Groq",
-    providerLogo: "/logos/groq.png",
+    providerLogo: "/groq-logo.png",
   },
   {
     id: "qwen3",
@@ -61,7 +61,7 @@ const models: ModelSpec[] = [
     description: "Powerful reasoning model from Alibaba",
     capabilities: ["Advanced reasoning", "Long context", "Multilingual", "Math & Logic"],
     provider: "Groq",
-    providerLogo: "/logos/groq.png",
+    providerLogo: "/groq-logo.png",
   },
   {
     id: "llama-4",
@@ -75,7 +75,7 @@ const models: ModelSpec[] = [
     description: "Meta's latest Llama model with enhanced capabilities",
     capabilities: ["Code generation", "Reasoning", "Instruction following", "Efficiency"],
     provider: "Groq",
-    providerLogo: "/logos/groq.png",
+    providerLogo: "/groq-logo.png",
   },
   {
     id: "gpt-oss",
@@ -89,7 +89,7 @@ const models: ModelSpec[] = [
     description: "Open-source GPT-style model with high token output",
     capabilities: ["Long output", "General purpose", "Chat", "Text generation"],
     provider: "OpenAI",
-    providerLogo: "/logos/openai.png",
+    providerLogo: "/openai-logo.png",
   },
   {
     id: "gpt-oss-120b",
@@ -103,7 +103,7 @@ const models: ModelSpec[] = [
     description: "Large-scale open-source GPT model for advanced tasks",
     capabilities: ["Advanced reasoning", "Long output", "Complex tasks", "High quality"],
     provider: "OpenAI",
-    providerLogo: "/logos/openai.png",
+    providerLogo: "/openai-logo.png",
   },
   
   // Chutes AI Models (1 model)
@@ -179,7 +179,7 @@ const models: ModelSpec[] = [
     description: "Efficient Mistral model for general tasks",
     capabilities: ["Chat", "Reasoning", "Instruction following", "Efficient"],
     provider: "Mistral AI",
-    providerLogo: "/logos/mistral.png",
+    providerLogo: "/mistral-logo.png",
   },
   {
     id: "mistral-small-3.1-24b",
@@ -193,7 +193,7 @@ const models: ModelSpec[] = [
     description: "Latest Mistral model with improved performance",
     capabilities: ["Enhanced reasoning", "Chat", "General purpose", "Fast"],
     provider: "Mistral AI",
-    providerLogo: "/logos/mistral.png",
+    providerLogo: "/mistral-logo.png",
   },
   
   // Local Ollama Models (2 models)
