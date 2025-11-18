@@ -9,10 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PremiumCard, StatCard } from "@/components/ui/premium-card";
 import { createClient } from "@/lib/supabase/client";
 import { CreateKeyDialog } from "@/components/create-key-dialog";
 import { ApiKeysList } from "@/components/api-keys-list";
-import { Lock, Eye, EyeOff, Copy, Trash2, RotateCw } from 'lucide-react';
+import { Lock, Shield, Key, RotateCw, Sparkles, Clock, CheckCircle2 } from 'lucide-react';
 
 export default function ApiKeysPage() {
   const [keys, setKeys] = useState<any[]>([]);
@@ -51,63 +52,95 @@ export default function ApiKeysPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
-      <section>
-        <h1 className="text-4xl font-bold tracking-tight mb-2">API Keys</h1>
-        <p className="text-muted-foreground text-lg">
-          Generate, manage, and rotate your API keys with granular scope control
-        </p>
+    <div className="max-w-7xl mx-auto px-6 py-12 space-y-10">
+      {/* Premium Header */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-xl border border-primary/20">
+            <Key className="w-8 h-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+              API Keys
+            </h1>
+            <p className="text-muted-foreground text-lg mt-1">
+              Secure authentication credentials with enterprise-grade encryption
+            </p>
+          </div>
+        </div>
       </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Active Keys</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : keys.filter(k => k.is_active).length}</p>
-            <p className="text-xs text-green-400 mt-2">{keys.filter(k => k.is_active).length} operational</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Total Keys</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : keys.length}</p>
-            <p className="text-xs text-muted-foreground mt-2">{keys.filter(k => !k.is_active).length} inactive</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Last Created</p>
-            <p className="text-lg font-bold">{isLoading ? '...' : keys.length > 0 ? new Date(keys[0].created_at).toLocaleDateString() : 'None'}</p>
-            <p className="text-xs text-muted-foreground mt-2">Most recent key</p>
-          </CardContent>
-        </Card>
+      {/* Premium Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard
+          title="Active Keys"
+          value={isLoading ? '...' : keys.filter(k => k.is_active).length}
+          description={`${keys.filter(k => k.is_active).length} operational keys`}
+          icon={<CheckCircle2 className="w-6 h-6" />}
+          trend="All systems secure"
+          trendUp={true}
+        />
+        <StatCard
+          title="Total Keys"
+          value={isLoading ? '...' : keys.length}
+          description={`${keys.filter(k => !k.is_active).length} inactive keys`}
+          icon={<Shield className="w-6 h-6" />}
+        />
+        <StatCard
+          title="Last Created"
+          value={isLoading ? '...' : keys.length > 0 ? new Date(keys[0].created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'None'}
+          description="Most recent API key"
+          icon={<Clock className="w-6 h-6" />}
+        />
       </div>
 
-      <div className="grid gap-6">
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Your API Keys</CardTitle>
-              <CardDescription>
-                Create and manage API keys with scoped permissions
+      <div className="grid gap-8">
+        {/* Premium API Keys Card */}
+        <PremiumCard gradient>
+          <CardHeader className="flex flex-row items-center justify-between pb-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  Your API Keys
+                </CardTitle>
+              </div>
+              <CardDescription className="text-base text-muted-foreground/80">
+                Enterprise-grade security with SHA-256 encryption and scoped permissions
               </CardDescription>
             </div>
-            <Button onClick={() => setShowCreateDialog(true)} className="bg-primary hover:bg-primary/90">
-              + Create New Key
+            <Button 
+              onClick={() => setShowCreateDialog(true)} 
+              size="lg"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-300 hover:scale-105 shadow-lg shadow-primary/25"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Create New Key
             </Button>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                Loading API keys...
+              <div className="text-center py-12">
+                <RotateCw className="w-8 h-8 text-primary mx-auto mb-4 animate-spin" />
+                <p className="text-muted-foreground">Loading your API keys...</p>
               </div>
             ) : keys.length === 0 ? (
-              <div className="text-center py-12">
-                <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <p className="text-muted-foreground mb-4">
-                  You haven&apos;t created any API keys yet
+              <div className="text-center py-16">
+                <div className="inline-flex p-6 rounded-3xl bg-gradient-to-br from-muted/50 to-muted/30 mb-6">
+                  <Lock className="w-16 h-16 text-muted-foreground/50" />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3">No API Keys Yet</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Create your first API key to start making authenticated requests to our platform
                 </p>
-                <Button onClick={() => setShowCreateDialog(true)} className="bg-primary hover:bg-primary/90">
+                <Button 
+                  onClick={() => setShowCreateDialog(true)} 
+                  size="lg"
+                  className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-300 hover:scale-105"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
                   Create Your First Key
                 </Button>
               </div>
@@ -115,57 +148,98 @@ export default function ApiKeysPage() {
               <ApiKeysList keys={keys} onKeyDeleted={handleKeyDeleted} />
             )}
           </CardContent>
-        </Card>
+        </PremiumCard>
 
-        <Card className="bg-black/40 backdrop-blur border-white/10">
+        {/* Premium Security Best Practices */}
+        <PremiumCard gradient>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5 text-accent" />
-              Security Best Practices
-            </CardTitle>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/20">
+                <Lock className="w-6 h-6 text-green-400" />
+              </div>
+              <div>
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  Security Best Practices
+                </CardTitle>
+                <CardDescription className="text-base mt-1 text-muted-foreground/80">
+                  Enterprise-grade security guidelines for your API keys
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                <h4 className="font-semibold text-sm mb-2">Key Rotation</h4>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Rotate keys every 90 days to minimize exposure risk
-                </p>
-                <Button variant="outline" size="sm" className="w-full border-white/10 text-xs gap-2">
-                  <RotateCw className="w-3 h-3" />
-                  Rotate Keys
-                </Button>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="group p-6 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 border border-border hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/5">
+                <div className="flex gap-4 items-start">
+                  <div className="mt-1 p-2.5 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-green-400 to-emerald-400" />
+                  </div>
+                  <div className="space-y-3 flex-1">
+                    <h4 className="font-semibold text-lg">Key Rotation</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Rotate keys every 90 days to minimize exposure risk and maintain security compliance
+                    </p>
+                    <Button variant="outline" size="sm" className="w-full border-primary/20 hover:border-primary/40 gap-2 hover:scale-105 transition-all duration-200">
+                      <RotateCw className="w-3.5 h-3.5" />
+                      Rotate Keys
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                <h4 className="font-semibold text-sm mb-2">Scoped Permissions</h4>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Create keys with specific permissions for each application
-                </p>
-                <Button variant="outline" size="sm" className="w-full border-white/10 text-xs">
-                  Learn More
-                </Button>
+              
+              <div className="group p-6 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 border border-border hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/5">
+                <div className="flex gap-4 items-start">
+                  <div className="mt-1 p-2.5 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400" />
+                  </div>
+                  <div className="space-y-3 flex-1">
+                    <h4 className="font-semibold text-lg">Scoped Permissions</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Create keys with specific permissions for each application using granular access controls
+                    </p>
+                    <Button variant="outline" size="sm" className="w-full border-primary/20 hover:border-primary/40 hover:scale-105 transition-all duration-200">
+                      Learn More
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                <h4 className="font-semibold text-sm mb-2">Environment Variables</h4>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Never commit API keys to version control
-                </p>
-                <Button variant="outline" size="sm" className="w-full border-white/10 text-xs">
-                  View Example
-                </Button>
+              
+              <div className="group p-6 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 border border-border hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/5">
+                <div className="flex gap-4 items-start">
+                  <div className="mt-1 p-2.5 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-purple-400 to-pink-400" />
+                  </div>
+                  <div className="space-y-3 flex-1">
+                    <h4 className="font-semibold text-lg">Environment Variables</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Never commit API keys to version control. Use secure environment variables instead
+                    </p>
+                    <Button variant="outline" size="sm" className="w-full border-primary/20 hover:border-primary/40 hover:scale-105 transition-all duration-200">
+                      View Example
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                <h4 className="font-semibold text-sm mb-2">Access Logs</h4>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Monitor key usage and unauthorized access attempts
-                </p>
-                <Button variant="outline" size="sm" className="w-full border-white/10 text-xs">
-                  View Logs
-                </Button>
+              
+              <div className="group p-6 rounded-2xl bg-gradient-to-br from-card/50 to-card/30 border border-border hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/5">
+                <div className="flex gap-4 items-start">
+                  <div className="mt-1 p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-400 to-orange-400" />
+                  </div>
+                  <div className="space-y-3 flex-1">
+                    <h4 className="font-semibold text-lg">Access Logs</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Monitor key usage and unauthorized access attempts with real-time alerting
+                    </p>
+                    <Button variant="outline" size="sm" className="w-full border-primary/20 hover:border-primary/40 hover:scale-105 transition-all duration-200">
+                      View Logs
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
-        </Card>
+        </PremiumCard>
       </div>
 
       <CreateKeyDialog

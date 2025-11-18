@@ -26,6 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PremiumCard, StatCard } from "@/components/ui/premium-card";
 import {
   Select,
   SelectContent,
@@ -34,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download, Calendar } from 'lucide-react';
+import { Download, Calendar, TrendingUp, BarChart3, PieChart as PieChartIcon, Activity } from 'lucide-react';
 
 // Mock data for charts
 const requestsData = [
@@ -170,53 +171,91 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-6 py-12 space-y-10">
+      {/* Premium Header */}
       <div className="flex items-center justify-between">
-        <section>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Analytics</h1>
-          <p className="text-muted-foreground text-lg">
-            Real-time usage analytics, trends, and insights
-          </p>
+        <section className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-xl border border-primary/20">
+              <BarChart3 className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+                Analytics
+              </h1>
+              <p className="text-muted-foreground text-lg mt-1">
+                Real-time insights and performance metrics
+              </p>
+            </div>
+          </div>
         </section>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-40 bg-black/40 border-white/10 hover:border-white/20">
+            <SelectTrigger className="w-44 h-12 bg-card/50 border-border hover:border-primary/30 rounded-xl">
               <Calendar className="w-4 h-4 mr-2" />
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-black/90 border-white/10">
+            <SelectContent className="bg-card/95 backdrop-blur-xl border-border">
               <SelectItem value="7d">Last 7 days</SelectItem>
               <SelectItem value="30d">Last 30 days</SelectItem>
               <SelectItem value="90d">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="border-white/10 hover:border-white/20 gap-2">
+          <Button variant="outline" size="lg" className="border-border hover:border-primary/30 gap-2 hover:scale-105 transition-all duration-200">
             <Download className="w-4 h-4" />
             Export
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <Card key={stat.label} className="bg-black/40 backdrop-blur border-white/10 hover:border-white/20 transition-all">
-            <CardContent className="pt-6">
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-muted-foreground text-xs font-semibold uppercase">{stat.label}</p>
-                <span className="text-2xl">{stat.icon}</span>
-              </div>
-              <p className="text-3xl font-bold mb-2">{stat.value}</p>
-              <p className="text-xs font-medium text-green-400">{stat.change} vs last period</p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Premium Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Requests"
+          value={analyticsData?.total_requests?.toString() || "0"}
+          description="vs last period"
+          icon={<Activity className="w-6 h-6" />}
+          trend="+12%"
+          trendUp={true}
+        />
+        <StatCard
+          title="Total Tokens"
+          value={`${(analyticsData?.total_tokens / 1000000).toFixed(1)}M` || "0"}
+          description="vs last period"
+          icon={<TrendingUp className="w-6 h-6" />}
+          trend="+8%"
+          trendUp={true}
+        />
+        <StatCard
+          title="Success Rate"
+          value={`${analyticsData?.success_rate}%` || "0%"}
+          description="vs last period"
+          icon={<BarChart3 className="w-6 h-6" />}
+          trend="+0.3%"
+          trendUp={true}
+        />
+        <StatCard
+          title="Total Cost"
+          value={`$${analyticsData?.total_cost?.toFixed(2)}` || "$0"}
+          description="vs last period"
+          icon={<PieChartIcon className="w-6 h-6" />}
+          trend="+5%"
+          trendUp={true}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-black/40 backdrop-blur border-white/10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <PremiumCard gradient>
           <CardHeader>
-            <CardTitle>API Requests & Errors</CardTitle>
-            <CardDescription>Request volume and error rate trends</CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+                <BarChart3 className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold">API Requests & Errors</CardTitle>
+                <CardDescription className="text-base mt-1">Request volume and error rate trends</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -227,31 +266,36 @@ export default function AnalyticsPage() {
                     <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" vertical={false} />
-                <XAxis dataKey="date" stroke="#666" />
-                <YAxis stroke="#666" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#0a0a0a', 
-                    border: '1px solid #1a1a1a', 
-                    borderRadius: '8px', 
-                    fontFamily: 'monospace' 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
-                  itemStyle={{ color: '#ffffff' }}
-                  labelStyle={{ color: '#ffffff' }}
                 />
                 <Legend />
-                <Area type="monotone" dataKey="requests" stroke="#2563eb" fill="url(#colorRequests)" name="Requests" />
-                <Line type="monotone" dataKey="errors" stroke="#dc2626" strokeWidth={2} name="Errors" />
+                <Area type="monotone" dataKey="requests" stroke="#2563eb" fill="url(#colorRequests)" name="Requests" strokeWidth={2} />
+                <Line type="monotone" dataKey="errors" stroke="#dc2626" strokeWidth={2} name="Errors" dot={{ fill: '#dc2626', r: 4 }} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
+        </PremiumCard>
 
-        <Card className="bg-black/40 backdrop-blur border-white/10">
+        <PremiumCard gradient>
           <CardHeader>
-            <CardTitle>Token Usage Trends</CardTitle>
-            <CardDescription>Input and output token consumption</CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20">
+                <TrendingUp className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold">Token Usage Trends</CardTitle>
+                <CardDescription className="text-base mt-1">Input and output token consumption</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -266,33 +310,38 @@ export default function AnalyticsPage() {
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" vertical={false} />
-                <XAxis dataKey="date" stroke="#666" />
-                <YAxis stroke="#666" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#0a0a0a', 
-                    border: '1px solid #1a1a1a', 
-                    borderRadius: '8px', 
-                    fontFamily: 'monospace' 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
-                  itemStyle={{ color: '#ffffff' }}
-                  labelStyle={{ color: '#ffffff' }}
                 />
                 <Legend />
-                <Area type="monotone" dataKey="input" stroke="#2563eb" fill="url(#colorInput)" name="Input Tokens" />
-                <Area type="monotone" dataKey="output" stroke="#10b981" fill="url(#colorOutput)" name="Output Tokens" />
+                <Area type="monotone" dataKey="input" stroke="#2563eb" fill="url(#colorInput)" name="Input Tokens" strokeWidth={2} />
+                <Area type="monotone" dataKey="output" stroke="#10b981" fill="url(#colorOutput)" name="Output Tokens" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
+        </PremiumCard>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-black/40 backdrop-blur border-white/10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <PremiumCard gradient>
           <CardHeader>
-            <CardTitle>Usage by Model</CardTitle>
-            <CardDescription>Percentage of requests by model type</CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                <PieChartIcon className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold">Usage by Model</CardTitle>
+                <CardDescription className="text-base mt-1">Percentage of requests by model type</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="flex justify-center">
             <ResponsiveContainer width="100%" height={300}>
@@ -301,9 +350,9 @@ export default function AnalyticsPage() {
                   data={modelUsageData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={2}
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {modelUsageData.map((entry, index) => (
@@ -312,23 +361,28 @@ export default function AnalyticsPage() {
                 </Pie>
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#0a0a0a', 
-                    border: '1px solid #1a1a1a', 
-                    borderRadius: '8px', 
-                    fontFamily: 'monospace' 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
-                  itemStyle={{ color: '#ffffff' }}
-                  labelStyle={{ color: '#ffffff' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
+        </PremiumCard>
 
-        <Card className="bg-black/40 backdrop-blur border-white/10">
+        <PremiumCard gradient>
           <CardHeader>
-            <CardTitle>Cost Breakdown</CardTitle>
-            <CardDescription>Monthly spending distribution</CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20">
+                <Activity className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold">Cost Breakdown</CardTitle>
+                <CardDescription className="text-base mt-1">Monthly spending distribution</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="flex justify-center">
             <ResponsiveContainer width="100%" height={300}>
@@ -337,9 +391,9 @@ export default function AnalyticsPage() {
                   data={costBreakdownData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={2}
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {costBreakdownData.map((entry, index) => (
@@ -348,18 +402,16 @@ export default function AnalyticsPage() {
                 </Pie>
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#0a0a0a', 
-                    border: '1px solid #1a1a1a', 
-                    borderRadius: '8px', 
-                    fontFamily: 'monospace' 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
-                  itemStyle={{ color: '#ffffff' }}
-                  labelStyle={{ color: '#ffffff' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
+        </PremiumCard>
       </div>
     </div>
   );

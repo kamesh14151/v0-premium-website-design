@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PremiumCard, StatCard } from "@/components/ui/premium-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Download, Filter, Clock, TrendingUp, Copy, Eye, RefreshCw } from 'lucide-react';
+import { Search, Download, Filter, Clock, TrendingUp, Copy, Eye, RefreshCw, Activity, Zap, CheckCircle2, AlertCircle, DollarSign } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function RequestHistoryPage() {
@@ -80,108 +81,180 @@ export default function RequestHistoryPage() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
       {/* Header */}
-      <section>
-        <h1 className="text-4xl font-bold tracking-tight mb-2">Request History</h1>
-        <p className="text-muted-foreground">
-          Monitor, analyze, and debug all API requests in real-time
-        </p>
+      {/* Premium Header */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-xl border border-primary/20">
+            <Activity className="w-8 h-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+              Request History
+            </h1>
+            <p className="text-muted-foreground text-lg mt-1">
+              Real-time monitoring and analytics for all API requests
+            </p>
+          </div>
+        </div>
       </section>
 
-      <Card className="bg-black/40 backdrop-blur border-white/10 hover:border-white/20 transition-all">
+      {/* Premium Performance Chart */}
+      <PremiumCard gradient>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Performance Metrics</CardTitle>
-              <CardDescription>Latency trends and error rate</CardDescription>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+                  <Zap className="w-5 h-5 text-blue-400" />
+                </div>
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  Performance Metrics
+                </CardTitle>
+              </div>
+              <CardDescription className="text-base text-muted-foreground/80">
+                Real-time latency trends and response time analytics
+              </CardDescription>
             </div>
-            <Button variant="outline" size="sm" className="border-white/10" onClick={loadRequests}><RefreshCw className="w-4 h-4" /></Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-primary/20 hover:border-primary/40 gap-2 hover:scale-105 transition-all duration-200" 
+              onClick={loadRequests}
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={280}>
             <LineChart data={latencyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" vertical={false} />
-              <XAxis stroke="#666" dataKey="time" />
-              <YAxis stroke="#666" />
-              <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '8px' }} />
-              <Line type="monotone" dataKey="latency" stroke="#2563eb" strokeWidth={2} name="Latency (ms)" />
+              <defs>
+                <linearGradient id="latencyGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+              <XAxis stroke="hsl(var(--muted-foreground))" dataKey="time" fontSize={12} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--card))', 
+                  border: '1px solid hsl(var(--border))', 
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }} 
+              />
+              <Line 
+                type="monotone" 
+                dataKey="latency" 
+                stroke="#3b82f6" 
+                strokeWidth={3} 
+                name="Latency (ms)"
+                dot={{ fill: '#3b82f6', r: 4 }}
+                activeDot={{ r: 6 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
-      </Card>
+      </PremiumCard>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Total Requests</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : stats.totalRequests >= 1000 ? `${(stats.totalRequests / 1000).toFixed(1)}K` : stats.totalRequests}</p>
-            <p className="text-xs text-green-400 mt-2">Last 100 requests</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Avg Response</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : `${stats.avgResponse.toFixed(1)}s`}</p>
-            <p className="text-xs text-muted-foreground mt-2">Response time</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Success Rate</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : `${stats.successRate}%`}</p>
-            <p className="text-xs text-green-400 mt-2">{stats.errors} errors</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Errors</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : stats.errors}</p>
-            <p className="text-xs text-amber-400 mt-2">Failed requests</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-black/40 backdrop-blur border-white/10">
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground mb-1 uppercase">Total Cost</p>
-            <p className="text-3xl font-bold">{isLoading ? '...' : `$${stats.totalCost.toFixed(2)}`}</p>
-            <p className="text-xs text-muted-foreground mt-2">All time</p>
-          </CardContent>
-        </Card>
+      {/* Premium Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <StatCard
+          title="Total Requests"
+          value={isLoading ? '...' : stats.totalRequests >= 1000 ? `${(stats.totalRequests / 1000).toFixed(1)}K` : stats.totalRequests}
+          description="Last 100 requests"
+          icon={<Activity className="w-6 h-6" />}
+          trend="All time high"
+          trendUp={true}
+        />
+        <StatCard
+          title="Avg Response"
+          value={isLoading ? '...' : `${stats.avgResponse.toFixed(1)}s`}
+          description="Response time"
+          icon={<Clock className="w-6 h-6" />}
+        />
+        <StatCard
+          title="Success Rate"
+          value={isLoading ? '...' : `${stats.successRate}%`}
+          description={`${stats.errors} errors`}
+          icon={<CheckCircle2 className="w-6 h-6" />}
+          trend="98% uptime"
+          trendUp={true}
+        />
+        <StatCard
+          title="Errors"
+          value={isLoading ? '...' : stats.errors}
+          description="Failed requests"
+          icon={<AlertCircle className="w-6 h-6" />}
+          trend="Low error rate"
+          trendUp={false}
+        />
+        <StatCard
+          title="Total Cost"
+          value={isLoading ? '...' : `$${stats.totalCost.toFixed(2)}`}
+          description="All time usage"
+          icon={<DollarSign className="w-6 h-6" />}
+        />
       </div>
 
+      {/* Premium Filters */}
       <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+        <div className="flex-1 relative group">
+          <Search className="absolute left-4 top-3.5 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
             placeholder="Search by model, endpoint, or status..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-black/40 border-white/10 hover:border-white/20"
+            className="pl-12 h-12 bg-card/50 border-border hover:border-primary/30 focus:border-primary/50 rounded-xl text-base transition-all duration-200"
           />
         </div>
         <select 
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 rounded-lg bg-black/40 border border-white/10 text-foreground text-sm hover:border-white/20 transition"
+          className="px-5 h-12 rounded-xl bg-card/50 border border-border hover:border-primary/30 text-foreground font-medium transition-all duration-200 cursor-pointer"
         >
           <option value="all">All Statuses</option>
           <option value="200">Success (200)</option>
           <option value="429">Rate Limited (429)</option>
           <option value="500">Server Error (500)</option>
         </select>
-        <Button variant="outline" className="border-white/10 hover:border-white/20 gap-2">
+        <Button 
+          variant="outline" 
+          size="lg"
+          className="border-border hover:border-primary/30 gap-2 hover:scale-105 transition-all duration-200"
+        >
           <Filter className="w-4 h-4" />
           More Filters
         </Button>
-        <Button variant="outline" className="border-white/10 hover:border-white/20 gap-2">
+        <Button 
+          variant="outline" 
+          size="lg"
+          className="border-border hover:border-primary/30 gap-2 hover:scale-105 transition-all duration-200"
+        >
           <Download className="w-4 h-4" />
           Export CSV
         </Button>
       </div>
 
-      <Card className="bg-black/40 backdrop-blur border-white/10">
+      {/* Premium Requests Table */}
+      <PremiumCard gradient>
         <CardHeader>
-          <CardTitle>Recent Requests</CardTitle>
-          <CardDescription>Latest 24 hours - Click to view details</CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+              <Clock className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Recent Requests
+              </CardTitle>
+              <CardDescription className="text-base mt-1 text-muted-foreground/80">
+                Latest 24 hours - Click any request to view detailed information
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
